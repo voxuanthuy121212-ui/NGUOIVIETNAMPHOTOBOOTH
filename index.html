@@ -1,0 +1,86 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
+    <title>Người Việt Nam Photo Booth</title>
+    <link rel="stylesheet" href="style.css">
+</head>
+<body>
+    <div class="main-layout">
+        <div class="left-panel">
+            <img src="images/khungtaphoa.png" class="shelf-bg" alt="Kệ tạp hóa">
+            
+            <img src="images/bunbotrai.png" class="btn-left item-l-bunbo bounce-btn" onclick="setFood('bunbo', this)">
+            <img src="images/bunrieu.png" class="btn-left item-l-bunrieu bounce-btn" onclick="setFood('bunrieu', this)">
+            <img src="images/bundautrai.png" class="btn-left item-l-bundau bounce-btn" onclick="setFood('bundau', this)">
+            <img src="images/photrai.png" class="btn-left item-l-pho bounce-btn active-item" onclick="setFood('pho', this)">
+            <img src="images/caphetrai.png" class="btn-left item-l-caphe bounce-btn" onclick="setFood('caphe', this)">
+
+            <img src="images/iubotrai.png" class="btn-left item-l-iubo bounce-btn" onclick="setText('iubo', this)">
+            <img src="images/iurieutrai.png" class="btn-left item-l-iurieu bounce-btn" onclick="setText('iurieu', this)">
+            <img src="images/iubundautrai.png" class="btn-left item-l-iubundau bounce-btn" onclick="setText('iubundau', this)">
+            <img src="images/iuphotrai.png" class="btn-left item-l-iupho bounce-btn active-item" onclick="setText('iupho', this)">
+            <img src="images/iucaphetrai.png" class="btn-left item-l-iucaphe bounce-btn" onclick="setText('iucaphe', this)">
+
+            <img src="images/ghetrai.png" class="btn-left item-l-ghe bounce-btn active-item" onclick="toggleDecor('ghe', this)">
+            <img src="images/tuidichotrai.png" class="btn-left item-l-tuidicho bounce-btn" onclick="toggleDecor('tuidicho', this)">
+            <img src="images/caosaovangtrai.png" class="btn-left item-l-caosaovang bounce-btn" onclick="toggleDecor('caosaovang', this)">
+            <img src="images/deplaotrai.png" class="btn-left item-l-deplao bounce-btn" onclick="toggleDecor('deplao', this)">
+            <img src="images/nonlatrai.png" class="btn-left item-l-nonla bounce-btn" onclick="toggleDecor('nonla', this)">
+            <img src="images/cotdientrai.png" class="btn-left item-l-cotdien bounce-btn active-item" onclick="toggleDecor('cotdien', this)">
+
+            <img src="images/nentrai.jpg" class="btn-left item-l-nen1 bounce-btn active-item" onclick="changeBg('images/nen.jpg', this)">
+            <img src="images/nen2trai.jpg" class="btn-left item-l-nen2 bounce-btn" onclick="changeBg('images/nen2.jpg', this)">
+            <img src="images/nen3trai.jpg" class="btn-left item-l-nen3 bounce-btn" onclick="changeBg('images/nen3.jpg', this)">
+            <img src="images/nen4trai.jpg" class="btn-left item-l-nen4 bounce-btn" onclick="changeBg('images/nen4.jpg', this)">
+
+            <img src="images/nutchup.png" id="btn-capture" class="btn-left item-l-nutchup bounce-btn">
+            <img src="images/nutchuplai.png" id="btn-retake" class="btn-left item-l-nutchuplai bounce-btn" style="pointer-events: none; opacity: 1;">
+            <img src="images/nuttaianhve.png" id="btn-download" class="btn-left item-l-nuttai bounce-btn" style="pointer-events: none; opacity: 1;">
+        </div>
+
+        <div class="photo-booth" id="booth-container">
+            <img id="main-bg" src="images/nen.jpg" class="layer-nen" alt="Nền">
+            <img src="images/khung.png" class="khung-vien">
+
+            <div class="khung-anh khung-tren">
+                <video id="webcam-1" autoplay playsinline></video>
+                <img id="result-1" class="captured-img" style="display: none;">
+                <div id="countdown-1" class="countdown-overlay" style="display: none;">3</div>
+            </div>
+            <div class="khung-anh khung-duoi">
+                <video id="webcam-2" autoplay playsinline></video>
+                <img id="result-2" class="captured-img" style="display: none;">
+                <div id="countdown-2" class="countdown-overlay" style="display: none;">3</div>
+            </div>
+
+            <img src="images/pho.png" id="food-pho" class="sticker-static pho">
+            <img src="images/bunbo.png" id="food-bunbo" class="sticker-static bunbo" style="display:none;">
+            <img src="images/bunrieu.png" id="food-bunrieu" class="sticker-static bunrieu" style="display:none;">
+            <img src="images/bundau.png" id="food-bundau" class="sticker-static bundau" style="display:none;">
+            <img src="images/mamtom.png" id="food-namtom" class="sticker-static namtom" style="display:none;">
+            <img src="images/caphe.png" id="food-caphe" class="sticker-static caphe" style="display:none;">
+
+            <img src="images/iupho.png" id="text-iupho" class="sticker-static iupho">
+            <img src="images/iubo.png" id="text-iubo" class="sticker-static iubo" style="display:none;">
+            <img src="images/iubundau.png" id="text-iubundau" class="sticker-static iubundau" style="display:none;">
+            <img src="images/iurieu.png" id="text-iurieu" class="sticker-static iurieu" style="display:none;">
+            <img src="images/iucaphe.png" id="text-iucaphe" class="sticker-static iucaphe" style="display:none;">
+
+            <img src="images/ghe.png" id="decor-ghe" class="sticker-movable ghe">
+            <img src="images/cotdien.png" id="decor-cotdien" class="sticker-movable cotdien">
+            <img src="images/nguoiviet.png" id="decor-nguoiviet" class="sticker-movable nguoiviet">
+            <img src="images/caosaovang.png" id="decor-caosaovang" class="sticker-movable caosaovang" style="display:none;">
+            <img src="images/nonla.png" id="decor-nonla" class="sticker-movable nonla" style="display:none;">
+            <img src="images/tuidicho.png" id="decor-tuidicho" class="sticker-movable tuidicho" style="display:none;">
+            <img src="images/deplao.png" id="decor-deplao" class="sticker-movable deplao" style="display:none;">
+        </div>
+    </div>
+
+    <img src="images/cho.png" id="running-dog" alt="Chó chạy lăng xăng">
+    <canvas id="canvas" style="display: none;"></canvas>
+    <script src="https://html2canvas.hertzen.com/dist/html2canvas.min.js"></script>
+    <script src="script.js"></script>
+</body>
+</html>

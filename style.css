@@ -1,0 +1,108 @@
+* { margin: 0; padding: 0; box-sizing: border-box; }
+
+body {
+    display: flex; justify-content: center; align-items: center;
+    min-height: 100vh;
+    background-image: url('images/nentong.jpg');
+    background-size: cover; background-position: center; background-attachment: fixed;
+    font-family: Arial, sans-serif;
+    user-select: none; -webkit-user-select: none;
+    overflow: hidden; 
+}
+
+.main-layout {
+    display: flex; flex-direction: row; align-items: center;
+    gap: 50px;
+    max-width: 95vw;
+}
+
+/* KỆ TẠP HÓA */
+.left-panel { position: relative; width: 530px; aspect-ratio: 20.6 / 26.44; flex-shrink: 0; }
+.shelf-bg { position: absolute; top: 0; left: 0; width: 100%; height: 90.58%; object-fit: contain; }
+.btn-left { position: absolute; z-index: 10; object-fit: contain; }
+
+/* Tọa độ nút (Giữ nguyên của bạn) */
+.item-l-bunbo   { width: 14.02%; left: 4.07%;  top: 28.36%; }
+.item-l-bunrieu { width: 13.64%; left: 23.30%; top: 28.44%; }
+.item-l-bundau  { width: 13.78%; left: 42.18%; top: 28.51%; }
+.item-l-pho     { width: 15.29%; left: 61.35%; top: 28.32%; }
+.item-l-caphe   { width: 12.86%; left: 81.89%; top: 28.47%; }
+
+.item-l-iubo     { width: 17.86%; left: 3.64%;  top: 43.07%; }
+.item-l-iurieu   { width: 18.98%; left: 22.18%; top: 43.72%; }
+.item-l-iubundau { width: 16.16%; left: 41.89%; top: 41.94%; }
+.item-l-iupho    { width: 16.84%; left: 58.73%; top: 44.25%; }
+.item-l-iucaphe  { width: 18.44%; left: 76.31%; top: 43.07%; }
+
+.item-l-ghe        { width: 11.79%; left: 7.37%;  top: 59.72%; }
+.item-l-tuidicho   { width: 10.33%; left: 22.33%; top: 59.75%; }
+.item-l-caosaovang { width: 11.06%; left: 35.82%; top: 59.75%; }
+.item-l-deplao     { width: 13.83%; left: 50.00%; top: 60.21%; }
+.item-l-nonla      { width: 14.70%; left: 67.00%; top: 60.40%; }
+.item-l-cotdien    { width: 9.85%;  left: 84.90%; top: 57.90%; }
+
+.item-l-nen1, .item-l-nen2, .item-l-nen3, .item-l-nen4 { width: 14.85%; top: 76.24%; border: none !important; }
+.item-l-nen1 { left: 24.51%; } .item-l-nen2 { left: 44.02%; } .item-l-nen3 { left: 63.59%; } .item-l-nen4 { left: 83.10%; }
+
+.item-l-nutchup   { width: 26.45%; left: 1.65%;  top: 93.38%; }
+.item-l-nutchuplai{ width: 26.45%; left: 36.79%; top: 93.38%; }
+.item-l-nuttai    { width: 26.45%; left: 72.47%; top: 93.38%; }
+
+#btn-capture { opacity: 1 !important; pointer-events: auto !important; }
+.bounce-btn { cursor: pointer; transition: transform 0.15s; }
+.bounce-btn:active { transform: scale(0.75); }
+.active-item { filter: brightness(1.1); }
+.inactive-item { opacity: 0.5; filter: grayscale(100%); }
+
+/* PHOTO BOOTH */
+.photo-booth {
+    position: relative; width: 600px; flex-shrink: 0; aspect-ratio: 19.09 / 22.08; 
+    background-color: #fff; overflow: hidden; border: 5px solid white;
+}
+.layer-nen { position: absolute; top: 0; left: 0; width: 100%; height: 100%; z-index: 1; object-fit: cover; }
+.khung-vien { position: absolute; width: 87.17%; left: 6.65%; height: 83.42%; top: 6.98%; z-index: 2; pointer-events: none; }
+
+.khung-anh { position: absolute; width: 80.78%; height: 35.73%; background-color: #1a1a1a; left: 9.69%; z-index: 3; overflow: hidden; }
+.khung-tren { top: 9.33%; }
+.khung-duoi { top: 51.77%; }
+
+/* Fix Camera & Ảnh chụp (Chống Zoom & Méo) */
+.khung-anh video, .captured-img { 
+    position: absolute; top: 0; left: 0; width: 100%; height: 100%; 
+    object-fit: cover !important; 
+}
+.khung-anh video { transform: scaleX(-1); }
+.captured-img { transform: none !important; }
+
+.countdown-overlay {
+    position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%);
+    font-size: 50px; color: #fff; font-weight: 900; z-index: 10; pointer-events: none;
+}
+
+/* STICKERS - KHÓA CẢM ỨNG */
+.sticker-static, .sticker-movable { position: absolute; z-index: 6; pointer-events: none; touch-action: none; }
+
+.caosaovang { width: 16.97%; left: -3.35%; top: 25.50%; z-index: 7;}
+.nonla      { width: 29.07%; left: 1.41%;  top: 79.44%; z-index: 8;}
+.tuidicho   { width: 24.46%; left: 3.40%;  top: 73.91%; z-index: 7;}
+.deplao     { width: 26.03%; left: 2.88%;  top: 79.76%; z-index: 8;}
+.bunbo, .bunrieu, .bundau, .caphe, .pho { width: 29%; left: 53%; top: 31%; z-index: 6;}
+.namtom     { width: 11.99%; left: 50.03%; top: 46.29%; z-index: 7;}
+.iubo, .iurieu, .iubundau, .iupho, .iucaphe { width: 30%; left: 69%; top: 65%; z-index: 7;}
+.cotdien    { width: 30.02%; left: 0%; top: 23.01%; z-index: 7; }
+.nguoiviet  { width: 30.54%; left: -0.58%; top: 5.98%; z-index: 5; }
+.ghe        { width: 22.62%; left: 5.71%; top: 77.94%; z-index: 8; }
+
+.decor-draggable { pointer-events: auto !important; cursor: grab; touch-action: none !important; }
+
+/* CHÚ CHÓ */
+#running-dog { position: fixed; bottom: 5px; width: 250px; z-index: 999; pointer-events: none; animation: dogRun 18s linear infinite, dogJump 0.25s ease-in-out infinite alternate; }
+@keyframes dogRun { 0% { left: 110vw; } 15%, 25% { left: 70vw; } 40%, 50% { left: 40vw; } 65%, 75% { left: 10vw; } 90%, 100% { left: -300px; } }
+@keyframes dogJump { from { transform: translateY(0px); } to { transform: translateY(-4px); } }
+
+/* RESPONSIVE */
+@media screen and (max-width: 768px) {
+    .main-layout { flex-direction: column; gap: 10px; transform: scale(0.85); }
+    .left-panel, .photo-booth { width: 95vw; height: auto; }
+    #running-dog { width: 150px; }
+}
