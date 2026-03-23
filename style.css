@@ -21,7 +21,7 @@ body {
 .shelf-bg { position: absolute; top: 0; left: 0; width: 100%; height: 90.58%; object-fit: contain; }
 .btn-left { position: absolute; z-index: 10; object-fit: contain; }
 
-/* Tọa độ nút (Giữ nguyên của bạn) */
+/* Tọa độ nút */
 .item-l-bunbo   { width: 14.02%; left: 4.07%;  top: 28.36%; }
 .item-l-bunrieu { width: 13.64%; left: 23.30%; top: 28.44%; }
 .item-l-bundau  { width: 13.78%; left: 42.18%; top: 28.51%; }
@@ -66,7 +66,6 @@ body {
 .khung-tren { top: 9.33%; }
 .khung-duoi { top: 51.77%; }
 
-/* Fix Camera & Ảnh chụp (Chống Zoom & Méo) */
 .khung-anh video, .captured-img { 
     position: absolute; top: 0; left: 0; width: 100%; height: 100%; 
     object-fit: cover !important; 
@@ -79,7 +78,7 @@ body {
     font-size: 50px; color: #fff; font-weight: 900; z-index: 10; pointer-events: none;
 }
 
-/* STICKERS - KHÓA CẢM ỨNG */
+/* STICKERS - KHÓA CẢM ỨNG NỀN */
 .sticker-static, .sticker-movable { position: absolute; z-index: 6; pointer-events: none; touch-action: none; }
 
 .caosaovang { width: 16.97%; left: -3.35%; top: 25.50%; z-index: 7;}
@@ -100,9 +99,36 @@ body {
 @keyframes dogRun { 0% { left: 110vw; } 15%, 25% { left: 70vw; } 40%, 50% { left: 40vw; } 65%, 75% { left: 10vw; } 90%, 100% { left: -300px; } }
 @keyframes dogJump { from { transform: translateY(0px); } to { transform: translateY(-4px); } }
 
-/* RESPONSIVE */
+/* ======================================================== */
+/* RESPONSIVE CHO ĐIỆN THOẠI (LAYOUT DỌC - FIX KHUNG HIỂN THỊ) */
+/* ======================================================== */
 @media screen and (max-width: 768px) {
-    .main-layout { flex-direction: column; gap: 10px; transform: scale(0.85); }
-    .left-panel, .photo-booth { width: 95vw; height: auto; }
+    body {
+        overflow-y: auto; /* Cho phép cuộn lên xuống giữa 2 phần */
+        padding: 20px 0 80px 0; /* Chừa chỗ cho con chó chạy */
+    }
+    
+    .main-layout { 
+        flex-direction: column; 
+        gap: 30px; 
+        transform: none; /* Bỏ scale */
+        margin-top: 0;
+    }
+
+    /* Thuật toán ép kích thước: Tính toán để chiều cao không vượt quá 85% màn hình */
+    .left-panel { 
+        width: 95vw; 
+        max-width: calc(85vh * (20.6 / 26.44)); 
+        height: auto; 
+        margin: 0 auto;
+    }
+    
+    .photo-booth { 
+        width: 95vw; 
+        max-width: calc(85vh * (19.09 / 22.08)); 
+        height: auto; 
+        margin: 0 auto;
+    }
+    
     #running-dog { width: 150px; }
 }

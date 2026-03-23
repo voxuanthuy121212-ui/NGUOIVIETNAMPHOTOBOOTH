@@ -30,7 +30,7 @@ async function startCamera() {
 }
 startCamera();
 
-// 4. Logic chụp ảnh KHÔNG MÉO & KHÔNG ZOOM (Cập nhật mới nhất)
+// 4. Logic chụp ảnh KHÔNG MÉO & KHÔNG ZOOM
 btnCap.onclick = () => {
     if (step > 2) { step = 1; r1.style.display = 'none'; r2.style.display = 'none'; }
     
@@ -49,8 +49,6 @@ btnCap.onclick = () => {
             const currentR = step === 1 ? r1 : r2;
 
             const ctx = canvas.getContext('2d');
-            
-            // --- ĐOẠN CODE FIX MÉO & ZOOM: Lấy thông số thực tế từ màn hình ---
             const vRect = currentV.getBoundingClientRect();
             const targetRatio = vRect.width / vRect.height;
             const videoW = currentV.videoWidth;
@@ -60,32 +58,21 @@ btnCap.onclick = () => {
             let sw, sh, sx, sy;
 
             if (videoRatio > targetRatio) {
-                // Video rộng hơn khung -> Cắt bớt 2 bên (Tránh mặt bị bè)
-                sw = videoH * targetRatio;
-                sh = videoH;
-                sx = (videoW - sw) / 2;
-                sy = 0;
+                sw = videoH * targetRatio; sh = videoH;
+                sx = (videoW - sw) / 2; sy = 0;
             } else {
-                // Video cao hơn khung -> Cắt bớt trên dưới (Tránh mặt bị dài)
-                sw = videoW;
-                sh = videoW / targetRatio;
-                sx = 0;
-                sy = (videoH - sh) / 2;
+                sw = videoW; sh = videoW / targetRatio;
+                sx = 0; sy = (videoH - sh) / 2;
             }
 
             canvas.width = sw;
             canvas.height = sh;
-
-            // Lật mặt để giống soi gương
             ctx.translate(canvas.width, 0);
             ctx.scale(-1, 1);
-            
-            // Vẽ đúng vùng nhìn thấy, không bị phóng đại (Zoom)
             ctx.drawImage(currentV, sx, sy, sw, sh, 0, 0, sw, sh);
 
             currentR.src = canvas.toDataURL('image/png');
             currentR.style.display = 'block';
-            // -------------------------------------------------------------
 
             step++;
             updateButtons();
@@ -110,12 +97,7 @@ btnRe.onclick = () => {
 
 btnDown.onclick = () => {
     const booth = document.getElementById('booth-container');
-    html2canvas(booth, { 
-        scale: 3, 
-        useCORS: true,
-        backgroundColor: null,
-        logging: false 
-    }).then(cv => {
+    html2canvas(booth, { scale: 3, useCORS: true, backgroundColor: null, logging: false }).then(cv => {
         const link = document.createElement('a');
         link.download = 'NguoiVietNamdethuong_yuth.i.jpg';
         link.href = cv.toDataURL('image/jpeg', 0.95);
@@ -148,22 +130,20 @@ function changeBg(newSrc, btn) {
 }
 
 const decorList = ['ghe', 'tuidicho', 'caosaovang', 'deplao', 'nonla', 'cotdien'];
+
+// ĐÃ CHỈNH SỬA: Cho phép kéo thả sticker ngay từ đầu mà không cần đếm
+function checkDraggableState() {
+    decorList.forEach(id => {
+        document.getElementById(`decor-${id}`).classList.add('decor-draggable');
+    });
+}
+checkDraggableState(); // Gọi hàm này ngay khi tải trang
+
 function toggleDecor(decorName, btn) {
     const item = document.getElementById(`decor-${decorName}`);
     item.style.display = (item.style.display === 'none' || item.style.display === '') ? 'block' : 'none';
     btn.classList.toggle('active-item');
     btn.classList.toggle('inactive-item');
-    checkDraggableState();
-}
-
-function checkDraggableState() {
-    let activeCount = 0;
-    decorList.forEach(id => { if (document.getElementById(`decor-${id}`).style.display === 'block') activeCount++; });
-    decorList.forEach(id => {
-        const el = document.getElementById(`decor-${id}`);
-        if (activeCount >= 2) el.classList.add('decor-draggable');
-        else el.classList.remove('decor-draggable');
-    });
 }
 
 // Logic Kéo thả & Zoom
