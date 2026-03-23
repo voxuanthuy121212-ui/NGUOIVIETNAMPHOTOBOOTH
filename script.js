@@ -156,13 +156,42 @@ btnRe.onclick = () => {
 
 btnDown.onclick = () => {
     const booth = document.getElementById('booth-container');
+    
     html2canvas(booth, { scale: 3, useCORS: true, backgroundColor: null }).then(cv => {
-        const link = document.createElement('a');
-        link.download = 'nguoiVietNamdethuong_yuth.i.jpg';
-        link.href = cv.toDataURL('image/jpeg', 0.95);
-        link.click();
+        // Chuyển canvas thành dạng Blob (file thực) thay vì chuỗi ký tự base64
+        cv.toBlob(blob => {
+            const fileName = 'nguoiVietNamdethuong_yuth.i.jpg';
+            const file = new File([blob], fileName, { type: 'image/jpeg' });
+
+            // CÁCH 1: Dùng tính năng Chia sẻ của điện thoại (Vượt qua tường lửa của Google App, Zalo, FB)
+            if (navigator.canShare && navigator.canShare({ files: [file] })) {
+                navigator.share({
+                    files: [file],
+                    title: 'Ảnh Photo Booth',
+                }).catch(err => {
+                    // Nếu người dùng hủy chia sẻ hoặc lỗi, thử dùng cách tải thường
+                    forceDownload(blob, fileName);
+                });
+            } else {
+                // CÁCH 2: Dành cho máy tính (PC) hoặc trình duyệt cũ không hỗ trợ Share
+                forceDownload(blob, fileName);
+            }
+        }, 'image/jpeg', 0.95);
     });
 };
+
+// Hàm ép tải xuống an toàn hơn bằng ObjectURL thay vì Base64
+function forceDownload(blob, fileName) {
+    const url = window.URL.createObjectURL(blob);
+    const link = document.createElement('a');
+    link.style.display = 'none';
+    link.href = url;
+    link.download = fileName;
+    document.body.appendChild(link);
+    link.click();
+    document.body.removeChild(link);
+    window.URL.revokeObjectURL(url);
+}
 
 // 6. Sticker & Background
 function setFood(n, b) { 
