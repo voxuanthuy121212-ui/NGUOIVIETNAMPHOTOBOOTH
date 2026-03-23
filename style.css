@@ -76,7 +76,19 @@ body {
 .khung-anh video { 
     position: absolute; top: 0; left: 0; width: 100%; height: 100%; 
     object-fit: cover !important; 
-    transform: scaleX(-1); 
+    transform: scaleX(-1); /* Lật gương */
+    
+    /* CHỐNG HIỆN NÚT PAUSE/PLAY TRÊN MOBILE */
+    pointer-events: none; 
+}
+
+/* Ẩn các nút điều khiển mặc định của Safari/Chrome */
+video::-webkit-media-controls {
+    display:none !important;
+}
+video::-webkit-media-controls-start-playback-button {
+    display: none !important;
+    -webkit-appearance: none;
 }
 
 .captured-img { 
