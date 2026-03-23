@@ -1,28 +1,26 @@
-// 1. Bảo vệ tác quyền (Nâng cấp chống Google App / Android Chrome)
-// Chặn menu chuột phải & menu nhấn giữ ở cấp độ toàn cục
-window.oncontextmenu = function(e) {
-    e.preventDefault();
-    e.stopPropagation();
-    return false;
-};
-
-// Chặn hành vi bôi đen
-document.addEventListener('selectstart', e => e.preventDefault());
-
-// Chặn kéo thả ảnh cơ bản
-document.addEventListener('dragstart', e => {
-    if (e.target.tagName.toLowerCase() === 'img') e.preventDefault();
+// 1. BẢO VỆ TÁC QUYỀN (Khắc tinh của Google App & Trình duyệt nhúng)
+document.addEventListener('contextmenu', event => event.preventDefault());
+document.addEventListener('selectstart', event => event.preventDefault());
+document.addEventListener('dragstart', event => {
+    if (event.target.tagName.toLowerCase() === 'img') event.preventDefault();
 });
 
-// Tiêm thẳng mã bảo vệ vào từng thẻ ảnh để trị Google App
-document.querySelectorAll('img').forEach(img => {
-    img.setAttribute('draggable', 'false');
-    img.addEventListener('contextmenu', e => {
-        e.preventDefault();
-        e.stopPropagation();
-        return false;
+// Biến các ảnh nền tĩnh thành "bóng ma", hoàn toàn vô hình với cảm ứng
+document.addEventListener('DOMContentLoaded', () => {
+    const disableTouchImages = document.querySelectorAll('.shelf-bg, .layer-nen, .khung-vien, #main-bg, #running-dog, .captured-img');
+    disableTouchImages.forEach(img => {
+        img.style.pointerEvents = 'none';
+    });
+
+    // Chặn luồng nhấn giữ trên các nút bấm nhưng vẫn cho phép nhấp (click)
+    document.querySelectorAll('.btn-left').forEach(btn => {
+        btn.addEventListener('touchstart', function(e) {
+            e.preventDefault(); // Cắt đuôi menu "Lưu hình ảnh"
+            this.click();       // Chủ động chạy lệnh của nút
+        }, {passive: false});
     });
 });
+
 // 2. Biến số
 const v1 = document.getElementById('webcam-1'), v2 = document.getElementById('webcam-2');
 const r1 = document.getElementById('result-1'), r2 = document.getElementById('result-2');
@@ -38,20 +36,19 @@ const mainBg = document.getElementById('main-bg');
 
 let step = 1; 
 
-// 3. Mở Camera (Thêm lệnh .play() để chắc chắn hiện hình trên iPhone)
+// 3. Mở Camera
 async function startCamera() {
     const constraints = { video: { width: { ideal: 1280 }, height: { ideal: 720 }, facingMode: "user" }, audio: false };
     try {
         const stream = await navigator.mediaDevices.getUserMedia(constraints);
         v1.srcObject = stream; v2.srcObject = stream;
-        v1.play(); v2.play(); // Ép camera chạy ngay lập tức
+        v1.play(); v2.play(); 
     } catch (err) { alert("Hãy cho phép quyền truy cập Camera nhé!"); }
 }
 startCamera();
 
-// 4A. Logic CHỤP ẢNH (CHỐNG NHẢY ZOOM & SỬA LỖI MÉO ẢNH KHI TẢI VỀ)
+// 4A. Logic CHỤP ẢNH
 btnCap.onclick = () => {
-    // Nếu chụp lại từ đầu, bật lại hiển thị (display: block) và play() video
     if (step > 2) { 
         step = 1; 
         r1.style.display = 'none'; 
@@ -76,13 +73,10 @@ btnCap.onclick = () => {
             const currentR = step === 1 ? r1 : r2;
 
             const ctx = canvas.getContext('2d');
-            
-            // Lấy kích thước thực tế của khung hiển thị trên màn hình
             const rect = currentV.getBoundingClientRect();
-            canvas.width = rect.width * 2; // Nhân 2 để ảnh sắc nét hơn
+            canvas.width = rect.width * 2; 
             canvas.height = rect.height * 2;
 
-            // Tính toán tỷ lệ để chụp đúng những gì đang "Cover" trong khung
             const videoRatio = currentV.videoWidth / currentV.videoHeight;
             const canvasRatio = canvas.width / canvas.height;
 
@@ -104,15 +98,13 @@ btnCap.onclick = () => {
             currentR.src = canvas.toDataURL('image/png');
             currentR.style.display = 'block';
             
-            // Ép ảnh chụp xong phải khớp 100% khung và chốt vị trí tuyệt đối
             currentR.style.width = '100%'; currentR.style.height = '100%';
             currentR.style.top = '0'; currentR.style.left = '0';
             currentR.style.objectFit = 'fill'; 
             currentR.style.transform = 'none';
+            currentR.style.pointerEvents = 'none'; // Khóa luôn cảm ứng của ảnh vừa chụp
             currentR.classList.remove('decor-draggable');
 
-            // SỬA LỖI Ở ĐÂY: Dùng display = 'none' thay vì opacity = '0' 
-            // Điều này gỡ hoàn toàn video khỏi DOM tạm thời, khiến html2canvas không thể bắt nhầm video bóp méo nữa.
             currentV.style.display = 'none';
 
             step++; updateButtons();
@@ -128,8 +120,9 @@ fileInput.onchange = () => {
         reader.onload = () => {
             target.src = reader.result; target.style.display = 'block';
             target.style.left = '0%'; target.style.top = '0%'; target.style.transform = 'scale(1)';
+            target.style.pointerEvents = 'auto'; // Cho phép cảm ứng để drag
             target.classList.add('decor-draggable');
-            videoTarget.style.display = 'none'; // Ẩn hoàn toàn camera đi
+            videoTarget.style.display = 'none'; 
         };
     };
     const r1_read = new FileReader(); loadImg(r1_read, r1, v1); r1_read.readAsDataURL(fileInput.files[0]);
@@ -145,19 +138,18 @@ function updateButtons() {
     btnDown.style.pointerEvents = (step > 2) ? 'auto' : 'none';
 }
 
-// Xử lý khi nhấn nút Chụp lại
 btnRe.onclick = () => {
     if (step === 2) { 
         step = 1; 
         r1.style.display = 'none'; 
         v1.style.display = 'block'; 
-        v1.play(); // Đảm bảo camera chạy lại bình thường trên điện thoại
+        v1.play(); 
     } 
     else if (step === 3) { 
         step = 2; 
         r2.style.display = 'none'; 
         v2.style.display = 'block'; 
-        v2.play(); // Đảm bảo camera chạy lại bình thường trên điện thoại
+        v2.play(); 
     }
     fileInput.value = ''; updateButtons();
 };
@@ -214,6 +206,12 @@ boothArea.addEventListener('touchstart', dS, {passive: false});
 
 function dS(e) {
     if (!e.target.classList.contains('decor-draggable')) return;
+    
+    // Đòn kết liễu: Cấm trình duyệt nhận diện hành vi nhấn giữ khi tương tác với các sticker
+    if (e.type === 'touchstart') {
+        e.preventDefault(); 
+    }
+    
     isD = true; curEl = e.target;
     let cX = e.type.includes('mouse') ? e.clientX : e.touches[0].clientX;
     let cY = e.type.includes('mouse') ? e.clientY : e.touches[0].clientY;
