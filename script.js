@@ -19,23 +19,20 @@ const mainBg = document.getElementById('main-bg');
 
 let step = 1; 
 
-// 3. Mở Camera
+// 3. Mở Camera (Thêm lệnh .play() để chắc chắn hiện hình trên iPhone)
 async function startCamera() {
-    const constraints = {
-        video: { width: { ideal: 1280 }, height: { ideal: 720 }, facingMode: "user" },
-        audio: false
-    };
+    const constraints = { video: { width: { ideal: 1280 }, height: { ideal: 720 }, facingMode: "user" }, audio: false };
     try {
         const stream = await navigator.mediaDevices.getUserMedia(constraints);
         v1.srcObject = stream; v2.srcObject = stream;
+        v1.play(); v2.play(); // Ép camera chạy ngay lập tức
     } catch (err) { alert("Hãy cho phép quyền truy cập Camera nhé!"); }
 }
 startCamera();
 
-// 4A. Logic CHỤP ẢNH TỪ CAMERA
+// 4A. Logic CHỤP ẢNH (CHỐNG NHẢY ZOOM)
 btnCap.onclick = () => {
     if (step > 2) { step = 1; r1.style.display = 'none'; r2.style.display = 'none'; }
-    
     const currentCountEl = step === 1 ? countEl1 : countEl2;
     currentCountEl.style.display = 'block';
     let count = 3; currentCountEl.innerText = count;
@@ -50,35 +47,26 @@ btnCap.onclick = () => {
             const currentV = step === 1 ? v1 : v2;
             const currentR = step === 1 ? r1 : r2;
 
-            // THUẬT TOÁN CHỤP CHÍNH XÁC THEO KHUNG NHÌN (CHỐNG ZOOM)
             const ctx = canvas.getContext('2d');
             
-            // Lấy kích thước thực tế của video đang hiển thị trên màn hình
-            const displayWidth = currentV.offsetWidth;
-            const displayHeight = currentV.offsetHeight;
-            
-            // Thiết lập canvas đúng bằng kích thước hiển thị
-            canvas.width = displayWidth;
-            canvas.height = displayHeight;
+            // Lấy kích thước thực tế của khung hiển thị trên màn hình
+            const rect = currentV.getBoundingClientRect();
+            canvas.width = rect.width * 2; // Nhân 2 để ảnh sắc nét hơn
+            canvas.height = rect.height * 2;
 
-            // Tính toán cắt xén (giống object-fit: cover)
+            // Tính toán tỷ lệ để chụp đúng những gì đang "Cover" trong khung
             const videoRatio = currentV.videoWidth / currentV.videoHeight;
-            const displayRatio = displayWidth / displayHeight;
-            
+            const canvasRatio = canvas.width / canvas.height;
+
             let sw, sh, sx, sy;
-            if (videoRatio > displayRatio) {
-                sw = currentV.videoHeight * displayRatio;
-                sh = currentV.videoHeight;
-                sx = (currentV.videoWidth - sw) / 2;
-                sy = 0;
+            if (videoRatio > canvasRatio) {
+                sw = currentV.videoHeight * canvasRatio; sh = currentV.videoHeight;
+                sx = (currentV.videoWidth - sw) / 2; sy = 0;
             } else {
-                sw = currentV.videoWidth;
-                sh = currentV.videoWidth / displayRatio;
-                sx = 0;
-                sy = (currentV.videoHeight - sh) / 2;
+                sw = currentV.videoWidth; sh = currentV.videoWidth / canvasRatio;
+                sx = 0; sy = (currentV.videoHeight - sh) / 2;
             }
 
-            // Vẽ ảnh lên canvas (có lật gương để giống camera trước)
             ctx.save();
             ctx.translate(canvas.width, 0);
             ctx.scale(-1, 1);
@@ -88,58 +76,35 @@ btnCap.onclick = () => {
             currentR.src = canvas.toDataURL('image/png');
             currentR.style.display = 'block';
             
-            // Khóa ảnh chụp cố định
-            currentR.style.width = '100%'; 
-            currentR.style.height = '100%';
+            // Ép ảnh chụp xong phải khớp 100% khung
+            currentR.style.width = '100%'; currentR.style.height = '100%';
             currentR.style.objectFit = 'cover';
             currentR.style.transform = 'none';
             currentR.classList.remove('decor-draggable');
 
-            step++;
-            updateButtons();
+            step++; updateButtons();
         }
     }, 1000);
 };
 
-// 4B. Logic TẢI ẢNH TỪ MÁY LÊN VÀ BẬT KÉO THẢ, ZOOM
+// 4B. TẢI ẢNH TỪ MÁY
 btnUpload.onclick = () => { fileInput.click(); };
-
 fileInput.onchange = () => {
-    if (fileInput.files.length !== 2) {
-        alert("Vui lòng chọn đúng 2 tấm hình để ghép vào khung nhé!");
-        return;
-    }
-
-    const reader1 = new FileReader();
-    const reader2 = new FileReader();
-
-    reader1.onload = () => {
-        r1.src = reader1.result;
-        r1.style.display = 'block';
-        r1.style.left = '0%'; r1.style.top = '0%'; 
-        r1.style.transform = 'scale(1)'; 
-        r1.setAttribute('data-scale', 1);
-        r1.classList.add('decor-draggable'); // Kích hoạt kéo thả cho ảnh
+    if (fileInput.files.length !== 2) { alert("Vui lòng chọn 2 hình!"); return; }
+    const loadImg = (reader, target) => {
+        reader.onload = () => {
+            target.src = reader.result; target.style.display = 'block';
+            target.style.left = '0%'; target.style.top = '0%'; target.style.transform = 'scale(1)';
+            target.classList.add('decor-draggable');
+        };
     };
-    reader2.onload = () => {
-        r2.src = reader2.result;
-        r2.style.display = 'block';
-        r2.style.left = '0%'; r2.style.top = '0%'; 
-        r2.style.transform = 'scale(1)'; 
-        r2.setAttribute('data-scale', 1);
-        r2.classList.add('decor-draggable'); // Kích hoạt kéo thả cho ảnh
-    };
-
-    reader1.readAsDataURL(fileInput.files[0]);
-    reader2.readAsDataURL(fileInput.files[1]);
-
-    step = 3;
-    updateButtons();
+    const r1_read = new FileReader(); loadImg(r1_read, r1); r1_read.readAsDataURL(fileInput.files[0]);
+    const r2_read = new FileReader(); loadImg(r2_read, r2); r2_read.readAsDataURL(fileInput.files[1]);
+    step = 3; updateButtons();
 };
 
 // 5. Cập nhật nút & Tải về
 function updateButtons() {
-    btnCap.style.opacity = '1'; btnCap.style.pointerEvents = 'auto';
     btnRe.style.opacity = (step > 1) ? '1' : '0.3';
     btnRe.style.pointerEvents = (step > 1) ? 'auto' : 'none';
     btnDown.style.opacity = (step > 2) ? '1' : '0.3';
@@ -149,135 +114,87 @@ function updateButtons() {
 btnRe.onclick = () => {
     if (step === 2) { step = 1; r1.style.display = 'none'; } 
     else if (step === 3) { step = 2; r2.style.display = 'none'; }
-    fileInput.value = ''; 
-    updateButtons();
+    fileInput.value = ''; updateButtons();
 };
 
 btnDown.onclick = () => {
     const booth = document.getElementById('booth-container');
-    html2canvas(booth, { scale: 3, useCORS: true, backgroundColor: null, logging: false }).then(cv => {
+    html2canvas(booth, { scale: 3, useCORS: true, backgroundColor: null }).then(cv => {
         const link = document.createElement('a');
-        link.download = 'NguoiVietNamdethuong_yuth.i.jpg';
+        link.download = 'nguoiVietNamdethuong_yuth.i.jpg';
         link.href = cv.toDataURL('image/jpeg', 0.95);
         link.click();
     });
 };
 
-// 6. Các hàm Sticker
-function setFood(foodName, btn) {
-    document.querySelectorAll('[id^="food-"]').forEach(el => el.style.display = 'none');
-    document.querySelectorAll('.item-l-bunbo, .item-l-bunrieu, .item-l-bundau, .item-l-pho, .item-l-caphe').forEach(el => el.classList.remove('active-item'));
-    const foodEl = document.getElementById(`food-${foodName}`);
-    if(foodEl) foodEl.style.display = 'block';
-    if(foodName === 'bundau') document.getElementById('food-namtom').style.display = 'block';
-    btn.classList.add('active-item');
+// 6. Sticker & Background
+function setFood(n, b) { 
+    document.querySelectorAll('[id^="food-"]').forEach(e => e.style.display = 'none');
+    document.querySelectorAll('.item-l-bunbo, .item-l-bunrieu, .item-l-bundau, .item-l-pho, .item-l-caphe').forEach(e => e.classList.remove('active-item'));
+    const el = document.getElementById(`food-${n}`); if(el) el.style.display = 'block'; b.classList.add('active-item');
 }
-
-function setText(textName, btn) {
-    document.querySelectorAll('[id^="text-"]').forEach(el => el.style.display = 'none');
-    document.querySelectorAll('.item-l-iubo, .item-l-iurieu, .item-l-iubundau, .item-l-iupho, .item-l-iucaphe').forEach(el => el.classList.remove('active-item'));
-    const textEl = document.getElementById(`text-${textName}`);
-    if(textEl) textEl.style.display = 'block';
-    btn.classList.add('active-item');
+function setText(n, b) {
+    document.querySelectorAll('[id^="text-"]').forEach(e => e.style.display = 'none');
+    document.querySelectorAll('.item-l-iubo, .item-l-iurieu, .item-l-iubundau, .item-l-iupho, .item-l-iucaphe').forEach(e => e.classList.remove('active-item'));
+    const el = document.getElementById(`text-${n}`); if(el) el.style.display = 'block'; b.classList.add('active-item');
 }
-
-function changeBg(newSrc, btn) {
-    mainBg.src = newSrc;
-    document.querySelectorAll('[class*="item-l-nen"]').forEach(el => el.classList.remove('active-item'));
-    btn.classList.add('active-item');
+function changeBg(s, b) {
+    mainBg.src = s; document.querySelectorAll('[class*="item-l-nen"]').forEach(e => e.classList.remove('active-item')); b.classList.add('active-item');
 }
 
 const decorList = ['ghe', 'tuidicho', 'caosaovang', 'deplao', 'nonla', 'cotdien'];
-
-// Bật kéo thả sticker
-function checkDraggableState() {
-    decorList.forEach(id => {
-        document.getElementById(`decor-${id}`).classList.add('decor-draggable');
-    });
-}
+function checkDraggableState() { decorList.forEach(id => { document.getElementById(`decor-${id}`).classList.add('decor-draggable'); }); }
 checkDraggableState();
 
-function toggleDecor(decorName, btn) {
-    const item = document.getElementById(`decor-${decorName}`);
-    item.style.display = (item.style.display === 'none' || item.style.display === '') ? 'block' : 'none';
-    btn.classList.toggle('active-item');
-    btn.classList.toggle('inactive-item');
+function toggleDecor(n, b) {
+    const el = document.getElementById(`decor-${n}`);
+    el.style.display = (el.style.display === 'none' || el.style.display === '') ? 'block' : 'none';
+    b.classList.toggle('active-item'); b.classList.toggle('inactive-item');
 }
 
-// 7. HỆ THỐNG KÉO THẢ & ZOOM (Chung cho cả Ảnh tải lên và Sticker)
-const booth = document.getElementById('booth-container');
-let isDrag = false, currentDragEl = null, initX = 0, initY = 0, sX = 0, sY = 0, initDist = null, initScale = 1;
+// 7. ZOOM & DRAG
+const boothArea = document.getElementById('booth-container');
+let isD = false, curEl = null, iX, iY, sX, sY, iDist, iScale;
 
-// Lăn chuột để Zoom trên Máy tính
-booth.addEventListener('wheel', (e) => {
+boothArea.addEventListener('wheel', (e) => {
     if (!e.target.classList.contains('decor-draggable')) return;
     e.preventDefault();
-    let scale = parseFloat(e.target.getAttribute('data-scale')) || 1;
-    scale += e.deltaY * -0.002;
-    scale = Math.min(Math.max(0.2, scale), 5); // Cho phép zoom từ 0.2x đến 5x
-    e.target.setAttribute('data-scale', scale);
-    e.target.style.transform = `scale(${scale})`;
+    let sc = parseFloat(e.target.getAttribute('data-scale')) || 1;
+    sc += e.deltaY * -0.002; sc = Math.min(Math.max(0.2, sc), 5);
+    e.target.setAttribute('data-scale', sc); e.target.style.transform = `scale(${sc})`;
 }, {passive: false});
 
-// Bắt đầu kéo
-booth.addEventListener('mousedown', dStart);
-booth.addEventListener('touchstart', dStart, {passive: false});
+boothArea.addEventListener('mousedown', dS);
+boothArea.addEventListener('touchstart', dS, {passive: false});
 
-function dStart(e) {
+function dS(e) {
     if (!e.target.classList.contains('decor-draggable')) return;
-    isDrag = true;
-    currentDragEl = e.target;
-    currentDragEl.style.transformOrigin = 'center center'; // Đảm bảo zoom từ tâm ảnh
-
+    isD = true; curEl = e.target;
     let cX = e.type.includes('mouse') ? e.clientX : e.touches[0].clientX;
     let cY = e.type.includes('mouse') ? e.clientY : e.touches[0].clientY;
-
-    initX = currentDragEl.offsetLeft;
-    initY = currentDragEl.offsetTop;
-    sX = cX; sY = cY;
-
-    document.addEventListener('mousemove', dMoving);
-    document.addEventListener('touchmove', dMoving, {passive: false});
-    document.addEventListener('mouseup', dEnd);
-    document.addEventListener('touchend', dEnd);
+    iX = curEl.offsetLeft; iY = curEl.offsetTop; sX = cX; sY = cY;
+    document.addEventListener('mousemove', dM);
+    document.addEventListener('touchmove', dM, {passive: false});
+    document.addEventListener('mouseup', dE); document.addEventListener('touchend', dE);
 }
 
-function dMoving(e) {
-    if (!currentDragEl) return;
-
-    // Zoom 2 ngón tay trên Điện thoại (Pinch to Zoom)
+function dM(e) {
+    if (!curEl) return;
     if(e.type === 'touchmove' && e.touches.length === 2) {
         e.preventDefault();
         let dist = Math.hypot(e.touches[0].clientX - e.touches[1].clientX, e.touches[0].clientY - e.touches[1].clientY);
-        if (!initDist) {
-            initDist = dist;
-            initScale = parseFloat(currentDragEl.getAttribute('data-scale')) || 1;
-        } else {
-            let scale = Math.min(Math.max(0.2, initScale * (dist / initDist)), 5);
-            currentDragEl.setAttribute('data-scale', scale);
-            currentDragEl.style.transform = `scale(${scale})`;
+        if (!iDist) { iDist = dist; iScale = parseFloat(curEl.getAttribute('data-scale')) || 1; }
+        else {
+            let sc = Math.min(Math.max(0.2, iScale * (dist / iDist)), 5);
+            curEl.setAttribute('data-scale', sc); curEl.style.transform = `scale(${sc})`;
         }
         return;
     }
-
-    // Di chuyển ảnh
-    if(!isDrag) return;
-    e.preventDefault(); // Chống cuộn màn hình web khi đang kéo ảnh
+    if(!isD) return;
     let cX = e.type.includes('mouse') ? e.clientX : e.touches[0].clientX;
     let cY = e.type.includes('mouse') ? e.clientY : e.touches[0].clientY;
-
-    let parentRect = currentDragEl.parentElement.getBoundingClientRect();
-
-    currentDragEl.style.left = (((initX + (cX - sX)) / parentRect.width) * 100) + '%';
-    currentDragEl.style.top = (((initY + (cY - sY)) / parentRect.height) * 100) + '%';
+    let pR = curEl.parentElement.getBoundingClientRect();
+    curEl.style.left = (((iX + (cX - sX)) / pR.width) * 100) + '%';
+    curEl.style.top = (((iY + (cY - sY)) / pR.height) * 100) + '%';
 }
-
-function dEnd() {
-    isDrag = false;
-    initDist = null;
-    currentDragEl = null;
-    document.removeEventListener('mousemove', dMoving);
-    document.removeEventListener('touchmove', dMoving);
-    document.removeEventListener('mouseup', dEnd);
-    document.removeEventListener('touchend', dEnd);
-}
+function dE() { isD = false; iDist = null; curEl = null; }
