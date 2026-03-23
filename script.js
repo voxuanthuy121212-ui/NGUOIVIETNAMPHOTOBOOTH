@@ -30,9 +30,18 @@ async function startCamera() {
 }
 startCamera();
 
-// 4A. Logic CHỤP ẢNH (CHỐNG NHẢY ZOOM)
+// 4A. Logic CHỤP ẢNH (CHỐNG NHẢY ZOOM & SỬA LỖI MÉO ẢNH KHI TẢI VỀ)
 btnCap.onclick = () => {
-    if (step > 2) { step = 1; r1.style.display = 'none'; r2.style.display = 'none'; }
+    // Nếu chụp lại từ đầu, bật lại hiển thị (display: block) và play() video
+    if (step > 2) { 
+        step = 1; 
+        r1.style.display = 'none'; 
+        r2.style.display = 'none'; 
+        v1.style.display = 'block'; 
+        v2.style.display = 'block'; 
+        v1.play(); v2.play();
+    }
+    
     const currentCountEl = step === 1 ? countEl1 : countEl2;
     currentCountEl.style.display = 'block';
     let count = 3; currentCountEl.innerText = count;
@@ -76,11 +85,16 @@ btnCap.onclick = () => {
             currentR.src = canvas.toDataURL('image/png');
             currentR.style.display = 'block';
             
-            // Ép ảnh chụp xong phải khớp 100% khung
+            // Ép ảnh chụp xong phải khớp 100% khung và chốt vị trí tuyệt đối
             currentR.style.width = '100%'; currentR.style.height = '100%';
-            currentR.style.objectFit = 'cover';
+            currentR.style.top = '0'; currentR.style.left = '0';
+            currentR.style.objectFit = 'fill'; 
             currentR.style.transform = 'none';
             currentR.classList.remove('decor-draggable');
+
+            // SỬA LỖI Ở ĐÂY: Dùng display = 'none' thay vì opacity = '0' 
+            // Điều này gỡ hoàn toàn video khỏi DOM tạm thời, khiến html2canvas không thể bắt nhầm video bóp méo nữa.
+            currentV.style.display = 'none';
 
             step++; updateButtons();
         }
@@ -91,15 +105,16 @@ btnCap.onclick = () => {
 btnUpload.onclick = () => { fileInput.click(); };
 fileInput.onchange = () => {
     if (fileInput.files.length !== 2) { alert("Vui lòng chọn 2 hình!"); return; }
-    const loadImg = (reader, target) => {
+    const loadImg = (reader, target, videoTarget) => {
         reader.onload = () => {
             target.src = reader.result; target.style.display = 'block';
             target.style.left = '0%'; target.style.top = '0%'; target.style.transform = 'scale(1)';
             target.classList.add('decor-draggable');
+            videoTarget.style.display = 'none'; // Ẩn hoàn toàn camera đi
         };
     };
-    const r1_read = new FileReader(); loadImg(r1_read, r1); r1_read.readAsDataURL(fileInput.files[0]);
-    const r2_read = new FileReader(); loadImg(r2_read, r2); r2_read.readAsDataURL(fileInput.files[1]);
+    const r1_read = new FileReader(); loadImg(r1_read, r1, v1); r1_read.readAsDataURL(fileInput.files[0]);
+    const r2_read = new FileReader(); loadImg(r2_read, r2, v2); r2_read.readAsDataURL(fileInput.files[1]);
     step = 3; updateButtons();
 };
 
@@ -111,9 +126,20 @@ function updateButtons() {
     btnDown.style.pointerEvents = (step > 2) ? 'auto' : 'none';
 }
 
+// Xử lý khi nhấn nút Chụp lại
 btnRe.onclick = () => {
-    if (step === 2) { step = 1; r1.style.display = 'none'; } 
-    else if (step === 3) { step = 2; r2.style.display = 'none'; }
+    if (step === 2) { 
+        step = 1; 
+        r1.style.display = 'none'; 
+        v1.style.display = 'block'; 
+        v1.play(); // Đảm bảo camera chạy lại bình thường trên điện thoại
+    } 
+    else if (step === 3) { 
+        step = 2; 
+        r2.style.display = 'none'; 
+        v2.style.display = 'block'; 
+        v2.play(); // Đảm bảo camera chạy lại bình thường trên điện thoại
+    }
     fileInput.value = ''; updateButtons();
 };
 
