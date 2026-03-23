@@ -1,9 +1,28 @@
-// 1. Bảo vệ tác quyền
-document.addEventListener('contextmenu', event => event.preventDefault());
-document.addEventListener('dragstart', event => {
-    if (event.target.tagName.toLowerCase() === 'img') event.preventDefault();
+// 1. Bảo vệ tác quyền (Nâng cấp chống Google App / Android Chrome)
+// Chặn menu chuột phải & menu nhấn giữ ở cấp độ toàn cục
+window.oncontextmenu = function(e) {
+    e.preventDefault();
+    e.stopPropagation();
+    return false;
+};
+
+// Chặn hành vi bôi đen
+document.addEventListener('selectstart', e => e.preventDefault());
+
+// Chặn kéo thả ảnh cơ bản
+document.addEventListener('dragstart', e => {
+    if (e.target.tagName.toLowerCase() === 'img') e.preventDefault();
 });
 
+// Tiêm thẳng mã bảo vệ vào từng thẻ ảnh để trị Google App
+document.querySelectorAll('img').forEach(img => {
+    img.setAttribute('draggable', 'false');
+    img.addEventListener('contextmenu', e => {
+        e.preventDefault();
+        e.stopPropagation();
+        return false;
+    });
+});
 // 2. Biến số
 const v1 = document.getElementById('webcam-1'), v2 = document.getElementById('webcam-2');
 const r1 = document.getElementById('result-1'), r2 = document.getElementById('result-2');
