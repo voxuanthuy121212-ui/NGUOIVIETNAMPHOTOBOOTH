@@ -50,33 +50,50 @@ btnCap.onclick = () => {
             const currentV = step === 1 ? v1 : v2;
             const currentR = step === 1 ? r1 : r2;
 
+            // THUẬT TOÁN CHỤP CHÍNH XÁC THEO KHUNG NHÌN (CHỐNG ZOOM)
             const ctx = canvas.getContext('2d');
-            const vRect = currentV.getBoundingClientRect();
-            const targetRatio = vRect.width / vRect.height;
-            const videoW = currentV.videoWidth;
-            const videoH = currentV.videoHeight;
-            const videoRatio = videoW / videoH;
+            
+            // Lấy kích thước thực tế của video đang hiển thị trên màn hình
+            const displayWidth = currentV.offsetWidth;
+            const displayHeight = currentV.offsetHeight;
+            
+            // Thiết lập canvas đúng bằng kích thước hiển thị
+            canvas.width = displayWidth;
+            canvas.height = displayHeight;
 
+            // Tính toán cắt xén (giống object-fit: cover)
+            const videoRatio = currentV.videoWidth / currentV.videoHeight;
+            const displayRatio = displayWidth / displayHeight;
+            
             let sw, sh, sx, sy;
-
-            if (videoRatio > targetRatio) {
-                sw = videoH * targetRatio; sh = videoH; sx = (videoW - sw) / 2; sy = 0;
+            if (videoRatio > displayRatio) {
+                sw = currentV.videoHeight * displayRatio;
+                sh = currentV.videoHeight;
+                sx = (currentV.videoWidth - sw) / 2;
+                sy = 0;
             } else {
-                sw = videoW; sh = videoW / targetRatio; sx = 0; sy = (videoH - sh) / 2;
+                sw = currentV.videoWidth;
+                sh = currentV.videoWidth / displayRatio;
+                sx = 0;
+                sy = (currentV.videoHeight - sh) / 2;
             }
 
-            canvas.width = sw;
-            canvas.height = sh;
+            // Vẽ ảnh lên canvas (có lật gương để giống camera trước)
+            ctx.save();
             ctx.translate(canvas.width, 0);
             ctx.scale(-1, 1);
-            ctx.drawImage(currentV, sx, sy, sw, sh, 0, 0, sw, sh);
+            ctx.drawImage(currentV, sx, sy, sw, sh, 0, 0, canvas.width, canvas.height);
+            ctx.restore();
 
             currentR.src = canvas.toDataURL('image/png');
             currentR.style.display = 'block';
             
-            // Khóa kéo thả cho ảnh chụp từ camera
+            // Khóa ảnh chụp cố định
+            currentR.style.width = '100%'; 
+            currentR.style.height = '100%';
+            currentR.style.objectFit = 'cover';
+            currentR.style.transform = 'none';
             currentR.classList.remove('decor-draggable');
-            currentR.style.left = '0'; currentR.style.top = '0'; currentR.style.transform = 'none';
 
             step++;
             updateButtons();
