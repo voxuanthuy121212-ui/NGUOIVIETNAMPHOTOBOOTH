@@ -70,12 +70,21 @@ body {
 .khung-tren { top: 9.33%; }
 .khung-duoi { top: 51.77%; }
 
-.khung-anh video, .captured-img { 
+/* =================================================== */
+/* XỬ LÝ ẢNH TRONG KHUNG (Tháo giới hạn để JS tự tính toán) */
+/* =================================================== */
+.khung-anh video { 
     position: absolute; top: 0; left: 0; width: 100%; height: 100%; 
     object-fit: cover !important; 
+    transform: scaleX(-1); 
 }
-.khung-anh video { transform: scaleX(-1); }
 
+.captured-img { 
+    position: absolute; 
+    z-index: 4; 
+    touch-action: none; 
+    /* Đã xóa bỏ các giới hạn width/height cũ để ảnh được tự do */
+}
 /* ĐÃ SỬA: Bỏ "transform: none !important" để cho phép Zoom */
 .captured-img { z-index: 4; touch-action: none; }
 
