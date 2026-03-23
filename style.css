@@ -176,12 +176,16 @@ video::-webkit-media-controls-start-playback-button {
     
     #running-dog { width: 150px; }
 }
-/* BẢO VỆ TÁC QUYỀN TRÊN ĐIỆN THOẠI */
-img {
-    -webkit-touch-callout: none !important; /* Chặn menu nhấn giữ trên iOS/Safari */
-    -webkit-user-select: none !important;   /* Chặn bôi đen ảnh trên iOS */
-    -moz-user-select: none !important;      /* Chặn trên Firefox */
-    -ms-user-select: none !important;       /* Chặn trên Edge/IE */
-    user-select: none !important;           /* Chuẩn chung */
-    -webkit-user-drag: none !important;     /* Chặn kéo thả ảnh trên điện thoại */
+* { 
+    margin: 0; 
+    padding: 0; 
+    box-sizing: border-box; 
+    
+    /* Ép toàn bộ trang web từ chối menu hệ thống khi nhấn giữ */
+    -webkit-touch-callout: none !important;
+    -webkit-user-select: none !important;
+    -moz-user-select: none !important;
+    -ms-user-select: none !important;
+    user-select: none !important;
+    -webkit-user-drag: none !important;
 }
