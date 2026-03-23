@@ -44,11 +44,13 @@ body {
 .item-l-nen1, .item-l-nen2, .item-l-nen3, .item-l-nen4 { width: 14.85%; top: 76.24%; border: none !important; }
 .item-l-nen1 { left: 24.51%; } .item-l-nen2 { left: 44.02%; } .item-l-nen3 { left: 63.59%; } .item-l-nen4 { left: 83.10%; }
 
-.item-l-nutchup   { width: 26.45%; left: 1.65%;  top: 93.38%; }
-.item-l-nutchuplai{ width: 26.45%; left: 36.79%; top: 93.38%; }
-.item-l-nuttai    { width: 26.45%; left: 72.47%; top: 93.38%; }
+/* ĐÃ CẬP NHẬT TỌA ĐỘ 3 NÚT MỚI (Merge, Retake, Download) */
+/* Căn chỉnh kích thước W/H từ bạn, tự bóp Left/Top cho phù hợp để không vượt kệ */
+.item-l-nutghep   { width: 16.31%; height: 6.66%; left: 10%;  top: 93.34%; }
+.item-l-nutchuplai{ width: 16.31%; height: 6.66%; left: 40%; top: 93.34%; }
+.item-l-nuttai    { width: 16.31%; height: 6.66%; left: 70%; top: 93.34%; }
 
-#btn-capture { opacity: 1 !important; pointer-events: auto !important; }
+#btn-upload { opacity: 1 !important; pointer-events: auto !important; }
 .bounce-btn { cursor: pointer; transition: transform 0.15s; }
 .bounce-btn:active { transform: scale(0.75); }
 .active-item { filter: brightness(1.1); }
@@ -66,19 +68,15 @@ body {
 .khung-tren { top: 9.33%; }
 .khung-duoi { top: 51.77%; }
 
-.khung-anh video, .captured-img { 
-    position: absolute; top: 0; left: 0; width: 100%; height: 100%; 
+/* Đã chỉnh: Cho phép ảnh tải lên có thể kéo thả, không bị méo */
+.captured-img { 
+    position: absolute; width: 100%; height: 100%; 
     object-fit: cover !important; 
-}
-.khung-anh video { transform: scaleX(-1); }
-.captured-img { transform: none !important; }
-
-.countdown-overlay {
-    position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%);
-    font-size: 50px; color: #fff; font-weight: 900; z-index: 10; pointer-events: none;
+    transform: none !important; 
+    z-index: 4;
 }
 
-/* STICKERS - KHÓA CẢM ỨNG NỀN */
+/* STICKERS - KHÓA CẢM ỨNG */
 .sticker-static, .sticker-movable { position: absolute; z-index: 6; pointer-events: none; touch-action: none; }
 
 .caosaovang { width: 16.97%; left: -3.35%; top: 25.50%; z-index: 7;}
@@ -99,23 +97,21 @@ body {
 @keyframes dogRun { 0% { left: 110vw; } 15%, 25% { left: 70vw; } 40%, 50% { left: 40vw; } 65%, 75% { left: 10vw; } 90%, 100% { left: -300px; } }
 @keyframes dogJump { from { transform: translateY(0px); } to { transform: translateY(-4px); } }
 
-/* ======================================================== */
-/* RESPONSIVE CHO ĐIỆN THOẠI (LAYOUT DỌC - FIX KHUNG HIỂN THỊ) */
-/* ======================================================== */
+/* RESPONSIVE MỚI CHO ĐIỆN THOẠI (Layout Dọc - Fix Khung hiển thị) */
 @media screen and (max-width: 768px) {
     body {
-        overflow-y: auto; /* Cho phép cuộn lên xuống giữa 2 phần */
-        padding: 20px 0 80px 0; /* Chừa chỗ cho con chó chạy */
+        overflow-y: auto; 
+        padding: 20px 0 80px 0; 
     }
     
     .main-layout { 
         flex-direction: column; 
         gap: 30px; 
-        transform: none; /* Bỏ scale */
+        transform: none; 
         margin-top: 0;
     }
 
-    /* Thuật toán ép kích thước: Tính toán để chiều cao không vượt quá 85% màn hình */
+    /* Thuật toán ép kích thước co lại để ôm trọn trong màn hình dọc */
     .left-panel { 
         width: 95vw; 
         max-width: calc(85vh * (20.6 / 26.44)); 

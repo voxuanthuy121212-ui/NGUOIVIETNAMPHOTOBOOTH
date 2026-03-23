@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
-    <title>Người Việt Nam Photo Booth</title>
+    <title>Người Việt Nam Photo Booth | Photo Composer</title>
     <link rel="stylesheet" href="style.css">
 </head>
 <body>
@@ -35,24 +35,20 @@
             <img src="images/nen3trai.jpg" class="btn-left item-l-nen3 bounce-btn" onclick="changeBg('images/nen3.jpg', this)">
             <img src="images/nen4trai.jpg" class="btn-left item-l-nen4 bounce-btn" onclick="changeBg('images/nen4.jpg', this)">
 
-            <img src="images/nutchup.png" id="btn-capture" class="btn-left item-l-nutchup bounce-btn">
+            <img src="images/nutghep.png" id="btn-upload" class="btn-left item-l-nutghep bounce-btn">
             <img src="images/nutchuplai.png" id="btn-retake" class="btn-left item-l-nutchuplai bounce-btn" style="pointer-events: none; opacity: 1;">
-            <img src="images/nuttaianhve.png" id="btn-download" class="btn-left item-l-nuttai bounce-btn" style="pointer-events: none; opacity: 1;">
+            <img src="images/nuttaihinhve.png" id="btn-download" class="btn-left item-l-nuttai bounce-btn" style="pointer-events: none; opacity: 1;">
         </div>
 
         <div class="photo-booth" id="booth-container">
             <img id="main-bg" src="images/nen.jpg" class="layer-nen" alt="Nền">
             <img src="images/khung.png" class="khung-vien">
 
-            <div class="khung-anh khung-tren">
-                <video id="webcam-1" autoplay playsinline></video>
+            <div class="khung-anh khung-tren" id="frame-1">
                 <img id="result-1" class="captured-img" style="display: none;">
-                <div id="countdown-1" class="countdown-overlay" style="display: none;">3</div>
             </div>
-            <div class="khung-anh khung-duoi">
-                <video id="webcam-2" autoplay playsinline></video>
+            <div class="khung-anh khung-duoi" id="frame-2">
                 <img id="result-2" class="captured-img" style="display: none;">
-                <div id="countdown-2" class="countdown-overlay" style="display: none;">3</div>
             </div>
 
             <img src="images/pho.png" id="food-pho" class="sticker-static pho">
@@ -78,8 +74,9 @@
         </div>
     </div>
 
+    <input type="file" id="file-input" multiple accept="image/*" style="display: none;">
+
     <img src="images/cho.png" id="running-dog" alt="Chó chạy lăng xăng">
-    <canvas id="canvas" style="display: none;"></canvas>
     <script src="https://html2canvas.hertzen.com/dist/html2canvas.min.js"></script>
     <script src="script.js"></script>
 </body>
