@@ -73,22 +73,24 @@ body {
 /* =================================================== */
 /* XỬ LÝ ẢNH TRONG KHUNG (Tháo giới hạn để JS tự tính toán) */
 /* =================================================== */
+/* =================================================== */
+/* FIX CAMERA MOBILE: ẨN NÚT PAUSE & CHỐNG LỆCH KHUNG */
+/* =================================================== */
 .khung-anh video { 
-    position: absolute; top: 0; left: 0; width: 100%; height: 100%; 
+    position: absolute; top: 0; left: 0; 
+    width: 100%; height: 100%; 
     object-fit: cover !important; 
-    transform: scaleX(-1); /* Lật gương */
-    
-    /* CHỐNG HIỆN NÚT PAUSE/PLAY TRÊN MOBILE */
-    pointer-events: none; 
+    transform: scaleX(-1);
+    pointer-events: none; /* Quan trọng: Chặn bấm vào video để hiện nút Pause */
 }
 
-/* Ẩn các nút điều khiển mặc định của Safari/Chrome */
-video::-webkit-media-controls {
-    display:none !important;
-}
+/* Ép Safari ẩn tất cả nút điều khiển mặc định */
+video::-webkit-media-controls,
+video::-webkit-media-controls-panel,
+video::-webkit-media-controls-play-button,
 video::-webkit-media-controls-start-playback-button {
     display: none !important;
-    -webkit-appearance: none;
+    -webkit-appearance: none !important;
 }
 
 .captured-img { 
