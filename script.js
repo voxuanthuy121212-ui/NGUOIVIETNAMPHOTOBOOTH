@@ -8,7 +8,7 @@ document.addEventListener('dragstart', event => {
 const v1 = document.getElementById('webcam-1'), v2 = document.getElementById('webcam-2');
 const r1 = document.getElementById('result-1'), r2 = document.getElementById('result-2');
 const btnCap = document.getElementById('btn-capture');
-const btnUpload = document.getElementById('btn-upload'); // Nút tải ảnh lên
+const btnUpload = document.getElementById('btn-upload'); 
 const fileInput = document.getElementById('file-input');
 const btnRe = document.getElementById('btn-retake');
 const btnDown = document.getElementById('btn-download');
@@ -19,7 +19,7 @@ const mainBg = document.getElementById('main-bg');
 
 let step = 1; 
 
-// 3. Mở Camera (Giữ nguyên)
+// 3. Mở Camera
 async function startCamera() {
     const constraints = {
         video: { width: { ideal: 1280 }, height: { ideal: 720 }, facingMode: "user" },
@@ -32,7 +32,7 @@ async function startCamera() {
 }
 startCamera();
 
-// 4A. Logic CHỤP ẢNH TỪ CAMERA (Không bị méo/zoom)
+// 4A. Logic CHỤP ẢNH TỪ CAMERA
 btnCap.onclick = () => {
     if (step > 2) { step = 1; r1.style.display = 'none'; r2.style.display = 'none'; }
     
@@ -60,11 +60,9 @@ btnCap.onclick = () => {
             let sw, sh, sx, sy;
 
             if (videoRatio > targetRatio) {
-                sw = videoH * targetRatio; sh = videoH;
-                sx = (videoW - sw) / 2; sy = 0;
+                sw = videoH * targetRatio; sh = videoH; sx = (videoW - sw) / 2; sy = 0;
             } else {
-                sw = videoW; sh = videoW / targetRatio;
-                sx = 0; sy = (videoH - sh) / 2;
+                sw = videoW; sh = videoW / targetRatio; sx = 0; sy = (videoH - sh) / 2;
             }
 
             canvas.width = sw;
@@ -76,7 +74,7 @@ btnCap.onclick = () => {
             currentR.src = canvas.toDataURL('image/png');
             currentR.style.display = 'block';
             
-            // Đảm bảo ảnh chụp từ camera không bị kéo thả
+            // Khóa kéo thả cho ảnh chụp từ camera
             currentR.classList.remove('decor-draggable');
             currentR.style.left = '0'; currentR.style.top = '0'; currentR.style.transform = 'none';
 
@@ -86,12 +84,12 @@ btnCap.onclick = () => {
     }, 1000);
 };
 
-// 4B. Logic TẢI ẢNH TỪ MÁY (Cho phép kéo thả & zoom)
+// 4B. Logic TẢI ẢNH TỪ MÁY LÊN VÀ BẬT KÉO THẢ, ZOOM
 btnUpload.onclick = () => { fileInput.click(); };
 
 fileInput.onchange = () => {
     if (fileInput.files.length !== 2) {
-        alert("Vui lòng chọn đủ 2 tấm hình để ghép vào khung nhé!");
+        alert("Vui lòng chọn đúng 2 tấm hình để ghép vào khung nhé!");
         return;
     }
 
@@ -101,20 +99,23 @@ fileInput.onchange = () => {
     reader1.onload = () => {
         r1.src = reader1.result;
         r1.style.display = 'block';
-        r1.style.left = '0%'; r1.style.top = '0%'; r1.style.transform = 'scale(1)'; 
-        makeInteractiveImage(r1, document.getElementById('frame-1')); 
+        r1.style.left = '0%'; r1.style.top = '0%'; 
+        r1.style.transform = 'scale(1)'; 
+        r1.setAttribute('data-scale', 1);
+        r1.classList.add('decor-draggable'); // Kích hoạt kéo thả cho ảnh
     };
     reader2.onload = () => {
         r2.src = reader2.result;
         r2.style.display = 'block';
-        r2.style.left = '0%'; r2.style.top = '0%'; r2.style.transform = 'scale(1)'; 
-        makeInteractiveImage(r2, document.getElementById('frame-2')); 
+        r2.style.left = '0%'; r2.style.top = '0%'; 
+        r2.style.transform = 'scale(1)'; 
+        r2.setAttribute('data-scale', 1);
+        r2.classList.add('decor-draggable'); // Kích hoạt kéo thả cho ảnh
     };
 
     reader1.readAsDataURL(fileInput.files[0]);
     reader2.readAsDataURL(fileInput.files[1]);
 
-    // Ép step = 3 để hiển thị luôn các nút Tải về / Chụp lại
     step = 3;
     updateButtons();
 };
@@ -131,7 +132,7 @@ function updateButtons() {
 btnRe.onclick = () => {
     if (step === 2) { step = 1; r1.style.display = 'none'; } 
     else if (step === 3) { step = 2; r2.style.display = 'none'; }
-    fileInput.value = ''; // Reset ô tải file
+    fileInput.value = ''; 
     updateButtons();
 };
 
@@ -139,7 +140,7 @@ btnDown.onclick = () => {
     const booth = document.getElementById('booth-container');
     html2canvas(booth, { scale: 3, useCORS: true, backgroundColor: null, logging: false }).then(cv => {
         const link = document.createElement('a');
-        link.download = 'NguoiVietNam_Composition.jpg';
+        link.download = 'NguoiVietNamdethuong_yuth.i.jpg';
         link.href = cv.toDataURL('image/jpeg', 0.95);
         link.click();
     });
@@ -171,7 +172,7 @@ function changeBg(newSrc, btn) {
 
 const decorList = ['ghe', 'tuidicho', 'caosaovang', 'deplao', 'nonla', 'cotdien'];
 
-// Bật kéo thả sticker ngay từ đầu
+// Bật kéo thả sticker
 function checkDraggableState() {
     decorList.forEach(id => {
         document.getElementById(`decor-${id}`).classList.add('decor-draggable');
@@ -186,66 +187,80 @@ function toggleDecor(decorName, btn) {
     btn.classList.toggle('inactive-item');
 }
 
-// 7. Logic Kéo thả & Phóng to ảnh (Chung cho Sticker và Ảnh tải lên)
-function makeInteractiveImage(el, parent) {
-    el.style.transformOrigin = 'center center'; 
-    el.classList.add('decor-draggable'); 
+// 7. HỆ THỐNG KÉO THẢ & ZOOM (Chung cho cả Ảnh tải lên và Sticker)
+const booth = document.getElementById('booth-container');
+let isDrag = false, currentDragEl = null, initX = 0, initY = 0, sX = 0, sY = 0, initDist = null, initScale = 1;
 
-    let isDrag = false, initX, initY, sX, sY, initDist = null, initScale = 1;
+// Lăn chuột để Zoom trên Máy tính
+booth.addEventListener('wheel', (e) => {
+    if (!e.target.classList.contains('decor-draggable')) return;
+    e.preventDefault();
+    let scale = parseFloat(e.target.getAttribute('data-scale')) || 1;
+    scale += e.deltaY * -0.002;
+    scale = Math.min(Math.max(0.2, scale), 5); // Cho phép zoom từ 0.2x đến 5x
+    e.target.setAttribute('data-scale', scale);
+    e.target.style.transform = `scale(${scale})`;
+}, {passive: false});
 
-    el.addEventListener('mousedown', dStart);
-    el.addEventListener('touchstart', dStart, {passive: false});
-    
-    el.addEventListener('wheel', (e) => {
-        e.preventDefault();
-        let scale = parseFloat(el.getAttribute('data-scale')) || 1;
-        scale += e.deltaY * -0.002;
-        scale = Math.min(Math.max(0.4, scale), 3);
-        el.setAttribute('data-scale', scale);
-        el.style.transform = `scale(${scale})`;
-    }, {passive: false});
+// Bắt đầu kéo
+booth.addEventListener('mousedown', dStart);
+booth.addEventListener('touchstart', dStart, {passive: false});
 
-    function dStart(e) {
-        if(!e.target.classList.contains('decor-draggable')) return;
-        isDrag = true;
-        let cX = e.type.includes('mouse') ? e.clientX : e.touches[0].clientX;
-        let cY = e.type.includes('mouse') ? e.clientY : e.touches[0].clientY;
-        let style = window.getComputedStyle(el);
-        initX = parseFloat(style.left); initY = parseFloat(style.top);
-        sX = cX; sY = cY;
-        document.addEventListener('mousemove', dMoving);
-        document.addEventListener('touchmove', dMoving, {passive: false});
-        document.addEventListener('mouseup', dEnd);
-        document.addEventListener('touchend', dEnd);
-    }
+function dStart(e) {
+    if (!e.target.classList.contains('decor-draggable')) return;
+    isDrag = true;
+    currentDragEl = e.target;
+    currentDragEl.style.transformOrigin = 'center center'; // Đảm bảo zoom từ tâm ảnh
 
-    function dMoving(e) {
-        if(e.type === 'touchmove' && e.touches.length === 2) {
-            let dist = Math.hypot(e.touches[0].clientX - e.touches[1].clientX, e.touches[0].clientY - e.touches[1].clientY);
-            if (!initDist) { initDist = dist; initScale = parseFloat(el.getAttribute('data-scale')) || 1; }
-            else {
-                let scale = Math.min(Math.max(0.4, initScale * (dist / initDist)), 3);
-                el.setAttribute('data-scale', scale);
-                el.style.transform = `scale(${scale})`;
-            }
-            return;
-        }
-        
-        if(!isDrag) return;
-        let cX = e.type.includes('mouse') ? e.clientX : e.touches[0].clientX;
-        let cY = e.type.includes('mouse') ? e.clientY : e.touches[0].clientY;
-        let pRect = parent.getBoundingClientRect();
-        
-        el.style.left = ((initX + (cX - sX)) / pRect.width * 100) + '%';
-        el.style.top = ((initY + (cY - sY)) / pRect.height * 100) + '%';
-    }
-    
-    function dEnd() { isDrag = false; initDist = null; }
+    let cX = e.type.includes('mouse') ? e.clientX : e.touches[0].clientX;
+    let cY = e.type.includes('mouse') ? e.clientY : e.touches[0].clientY;
+
+    initX = currentDragEl.offsetLeft;
+    initY = currentDragEl.offsetTop;
+    sX = cX; sY = cY;
+
+    document.addEventListener('mousemove', dMoving);
+    document.addEventListener('touchmove', dMoving, {passive: false});
+    document.addEventListener('mouseup', dEnd);
+    document.addEventListener('touchend', dEnd);
 }
 
-// Gắn logic kéo thả cho Sticker
-decorList.forEach(id => {
-    const el = document.getElementById(`decor-${id}`);
-    const parent = document.getElementById('booth-container'); // Sticker di chuyển trong toàn bộ photo-booth
-    makeInteractiveImage(el, parent);
-});
+function dMoving(e) {
+    if (!currentDragEl) return;
+
+    // Zoom 2 ngón tay trên Điện thoại (Pinch to Zoom)
+    if(e.type === 'touchmove' && e.touches.length === 2) {
+        e.preventDefault();
+        let dist = Math.hypot(e.touches[0].clientX - e.touches[1].clientX, e.touches[0].clientY - e.touches[1].clientY);
+        if (!initDist) {
+            initDist = dist;
+            initScale = parseFloat(currentDragEl.getAttribute('data-scale')) || 1;
+        } else {
+            let scale = Math.min(Math.max(0.2, initScale * (dist / initDist)), 5);
+            currentDragEl.setAttribute('data-scale', scale);
+            currentDragEl.style.transform = `scale(${scale})`;
+        }
+        return;
+    }
+
+    // Di chuyển ảnh
+    if(!isDrag) return;
+    e.preventDefault(); // Chống cuộn màn hình web khi đang kéo ảnh
+    let cX = e.type.includes('mouse') ? e.clientX : e.touches[0].clientX;
+    let cY = e.type.includes('mouse') ? e.clientY : e.touches[0].clientY;
+
+    let parentRect = currentDragEl.parentElement.getBoundingClientRect();
+
+    currentDragEl.style.left = (((initX + (cX - sX)) / parentRect.width) * 100) + '%';
+    currentDragEl.style.top = (((initY + (cY - sY)) / parentRect.height) * 100) + '%';
+}
+
+function dEnd() {
+    isDrag = false;
+    initDist = null;
+    currentDragEl = null;
+    document.removeEventListener('mousemove', dMoving);
+    document.removeEventListener('touchmove', dMoving);
+    document.removeEventListener('mouseup', dEnd);
+    document.removeEventListener('touchend', dEnd);
+}

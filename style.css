@@ -44,11 +44,13 @@ body {
 .item-l-nen1, .item-l-nen2, .item-l-nen3, .item-l-nen4 { width: 14.85%; top: 76.24%; border: none !important; }
 .item-l-nen1 { left: 24.51%; } .item-l-nen2 { left: 44.02%; } .item-l-nen3 { left: 63.59%; } .item-l-nen4 { left: 83.10%; }
 
-/* TỌA ĐỘ 4 NÚT DƯỚI CÙNG CHÍNH XÁC THEO BẢN THIẾT KẾ CỦA BẠN */
-.item-l-nutchup    { width: 26.45%; left: 1.65%;  top: 93.38%; }
-.item-l-nutchuplai { width: 16.31%; height: 6.66%; left: 49.75%; top: 93.34%; } /* X: 10.25cm */
-.item-l-nuttai     { width: 16.31%; height: 6.66%; left: 73.39%; top: 93.34%; } /* X: 15.12cm */
-.item-l-nutghep    { width: 16.31%; height: 6.66%; left: 96.99%; top: 93.34%; } /* X: 19.98cm */
+/* =================================================== */
+/* TỌA ĐỘ 4 NÚT DƯỚI CÙNG (Đã chia đều khe hở chính xác từng milimet) */
+/* =================================================== */
+.item-l-nutchup    { height: 6.66%; width: 26.45%; left: 2.5%;   top: 93.34%; }
+.item-l-nutchuplai { height: 6.66%; width: 16.31%; left: 35.49%; top: 93.34%; } 
+.item-l-nuttai     { height: 6.66%; width: 16.31%; left: 58.34%; top: 93.34%; } 
+.item-l-nutghep    { height: 6.66%; width: 16.31%; left: 81.19%; top: 93.34%; }
 
 #btn-capture, #btn-upload { opacity: 1 !important; pointer-events: auto !important; }
 .bounce-btn { cursor: pointer; transition: transform 0.15s; }
@@ -73,13 +75,30 @@ body {
     object-fit: cover !important; 
 }
 .khung-anh video { transform: scaleX(-1); }
-.captured-img { transform: none !important; z-index: 4; }
 
+/* ĐÃ SỬA: Bỏ "transform: none !important" để cho phép Zoom */
+.captured-img { z-index: 4; touch-action: none; }
+
+/* SỐ ĐẾM NGƯỢC (Đã sửa lại cho tròn xoe và căn giữa chuẩn 100%) */
 .countdown-overlay {
-    position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%);
-    font-size: 50px; color: #fff; font-weight: 900; z-index: 10; pointer-events: none;
+    position: absolute; 
+    top: 50%; left: 50%; transform: translate(-50%, -50%);
+    width: 40px; /* Chiều rộng bạn chọn */
+    height: 40px; /* Chiều cao bạn chọn */
+    background-color: #fd7abc; 
+    border-radius: 50%; /* Phải là 50% để ra hình tròn hoàn hảo */
+    font-size: 20px; 
+    font-weight: 800; 
+    color: #fff; 
+    z-index: 10; 
+    pointer-events: none;
+    box-shadow: 0 4px 4px rgba(0,0,0,0.2);
+    
+    text-align: center; /* Căn giữa chiều ngang */
+    line-height: 40px; /* Phải bằng đúng height (40px) để căn giữa chiều dọc */
+    margin: 0; 
+    padding: 0;
 }
-
 /* STICKERS - KHÓA CẢM ỨNG */
 .sticker-static, .sticker-movable { position: absolute; z-index: 6; pointer-events: none; touch-action: none; }
 
@@ -101,7 +120,7 @@ body {
 @keyframes dogRun { 0% { left: 110vw; } 15%, 25% { left: 70vw; } 40%, 50% { left: 40vw; } 65%, 75% { left: 10vw; } 90%, 100% { left: -300px; } }
 @keyframes dogJump { from { transform: translateY(0px); } to { transform: translateY(-4px); } }
 
-/* RESPONSIVE CHO ĐIỆN THOẠI (Layout dọc, nền nentongdienthoai.jpg, ép sát khung) */
+/* RESPONSIVE CHO ĐIỆN THOẠI */
 @media screen and (max-width: 768px) {
     body {
         overflow-y: auto; 
