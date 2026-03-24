@@ -187,48 +187,101 @@ btnRe.onclick = () => {
     fileInput.value = ''; updateButtons();
 };
 
-// Thay thế toàn bộ đoạn btnDown.onclick cũ bằng đoạn này
-btnDown.onclick = () => {
+// Tự động tạo CSS cho Popup ngay trong JS để không bị thiếu sót
+if (!document.getElementById('popup-style')) {
+    const style = document.createElement('style');
+    style.id = 'popup-style';
+    style.innerHTML = `
+        .modal-overlay {
+            position: fixed; top: 0; left: 0; width: 100vw; height: 100vh;
+            background: rgba(0,0,0,0.85); z-index: 99999;
+            display: flex; flex-direction: column; align-items: center; justify-content: center;
+        }
+        .modal-text { 
+            color: white; font-size: 18px; margin-bottom: 15px; 
+            text-align: center; padding: 0 20px; line-height: 1.5; font-weight: bold;
+        }
+        .modal-img { 
+            max-width: 90%; max-height: 65vh; 
+            border: 3px solid #fd7abc; border-radius: 10px; 
+            /* CỰC KỲ QUAN TRỌNG: Mở khóa lưu ảnh trên điện thoại */
+            -webkit-touch-callout: default !important;
+            -webkit-user-select: auto !important;
+            pointer-events: auto !important;
+        }
+        .modal-close { 
+            margin-top: 20px; padding: 12px 40px; 
+            background: #fd7abc; color: white; border: none; 
+            border-radius: 25px; font-size: 16px; font-weight: bold; cursor: pointer; 
+        }
+    `;
+    document.head.appendChild(style);
+}
+
+// Xử lý khi nhấn nút Tải Về
+btnDown.onclick = function() {
     const booth = document.getElementById('booth-container');
     
-    // Đổi màu nút tạm thời để báo hiệu đang xử lý
-    const oldFilter = btnDown.style.filter;
-    btnDown.style.filter = "brightness(0.5)";
+    // Báo hiệu đang xử lý để tránh bấm nhiều lần
+    const originalOpacity = this.style.opacity;
+    this.style.opacity = '0.5';
+    this.style.pointerEvents = 'none'; 
     
-    html2canvas(booth, { scale: 3, useCORS: true, backgroundColor: null }).then(cv => {
-        const dataUrl = cv.toDataURL('image/jpeg', 0.95);
-        btnDown.style.filter = oldFilter; // Trả lại màu
+    // Dùng setTimeout để giao diện kịp mờ đi trước khi máy bị đơ do render ảnh
+    setTimeout(() => {
+        html2canvas(booth, { 
+            scale: window.devicePixelRatio || 2, // Tối ưu tỷ lệ cho điện thoại đỡ lag
+            useCORS: true, 
+            backgroundColor: null
+        }).then(cv => {
+            this.style.opacity = originalOpacity;
+            this.style.pointerEvents = 'auto'; // Mở khóa nút
 
-        // Nhận diện xem có đúng là thiết bị di động không (iPhone, iPad, Android)
-        const isMobile = /Android|webOS|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(navigator.userAgent);
+            const dataUrl = cv.toDataURL('image/jpeg', 0.95);
+            const isMobile = /Android|webOS|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(navigator.userAgent);
 
-        if (isMobile) {
-            // ĐIỆN THOẠI: Mở Popup để người dùng tự lưu (Chống Zalo/FB/Google App chặn)
-            showDownloadModal(dataUrl);
-        } else {
-            // MÁY TÍNH (MAC / WINDOWS): Tải thẳng file xuống luôn, không hiện menu Share
-            const link = document.createElement('a');
-            link.download = 'nguoiVietNamdethuong_yuth.i.jpg';
-            link.href = dataUrl;
-            
-            // Bắt buộc phải thêm link vào body rồi mới click thì các trình duyệt khó tính mới cho tải
-            document.body.appendChild(link);
-            link.click();
-            document.body.removeChild(link);
-        }
-    });
+            if (isMobile) {
+                // ĐIỆN THOẠI: Mở Popup để nhấn giữ
+                showDownloadModal(dataUrl);
+            } else {
+                // MÁY TÍNH: Ép tải thẳng file xuống
+                const link = document.createElement('a');
+                link.download = 'nguoiVietNamdethuong_yuth.i.jpg';
+                link.href = dataUrl;
+                document.body.appendChild(link);
+                link.click();
+                document.body.removeChild(link);
+            }
+        }).catch(err => {
+            alert("Có lỗi khi tạo ảnh, bạn thử lại nhé!");
+            this.style.opacity = originalOpacity;
+            this.style.pointerEvents = 'auto';
+        });
+    }, 100); // Trễ 0.1s
 };
-// Hàm ép tải xuống an toàn hơn bằng ObjectURL thay vì Base64
-function forceDownload(blob, fileName) {
-    const url = window.URL.createObjectURL(blob);
-    const link = document.createElement('a');
-    link.style.display = 'none';
-    link.href = url;
-    link.download = fileName;
-    document.body.appendChild(link);
-    link.click();
-    document.body.removeChild(link);
-    window.URL.revokeObjectURL(url);
+
+// Hàm hiển thị Popup trên điện thoại
+function showDownloadModal(dataUrl) {
+    const overlay = document.createElement('div');
+    overlay.className = 'modal-overlay';
+    
+    const text = document.createElement('div');
+    text.className = 'modal-text';
+    text.innerHTML = '✨ Ảnh đã sẵn sàng!<br>Vui lòng <span style="color:#fd7abc;">NHẤN GIỮ VÀO TẤM ẢNH</span> bên dưới<br>và chọn "Lưu hình ảnh"';
+    
+    const img = document.createElement('img');
+    img.src = dataUrl;
+    img.className = 'modal-img'; // Đã gắn sẵn CSS mở khóa ở phía trên
+    
+    const closeBtn = document.createElement('button');
+    closeBtn.className = 'modal-close';
+    closeBtn.innerText = 'Đóng lại';
+    closeBtn.onclick = () => document.body.removeChild(overlay);
+    
+    overlay.appendChild(text);
+    overlay.appendChild(img);
+    overlay.appendChild(closeBtn);
+    document.body.appendChild(overlay);
 }
 
 // 6. Sticker & Background
