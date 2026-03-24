@@ -188,32 +188,37 @@ btnRe.onclick = () => {
     fileInput.value = ''; updateButtons();
 };
 
+// Thay thế toàn bộ đoạn btnDown.onclick cũ bằng đoạn này
 btnDown.onclick = () => {
     const booth = document.getElementById('booth-container');
     
+    // Đổi màu nút tạm thời để báo hiệu đang xử lý
+    const oldFilter = btnDown.style.filter;
+    btnDown.style.filter = "brightness(0.5)";
+    
     html2canvas(booth, { scale: 3, useCORS: true, backgroundColor: null }).then(cv => {
-        // Chuyển canvas thành dạng Blob (file thực) thay vì chuỗi ký tự base64
-        cv.toBlob(blob => {
-            const fileName = 'nguoiVietNamdethuong_yuth.i.jpg';
-            const file = new File([blob], fileName, { type: 'image/jpeg' });
+        const dataUrl = cv.toDataURL('image/jpeg', 0.95);
+        btnDown.style.filter = oldFilter; // Trả lại màu
 
-            // CÁCH 1: Dùng tính năng Chia sẻ của điện thoại (Vượt qua tường lửa của Google App, Zalo, FB)
-            if (navigator.canShare && navigator.canShare({ files: [file] })) {
-                navigator.share({
-                    files: [file],
-                    title: 'Ảnh Photo Booth',
-                }).catch(err => {
-                    // Nếu người dùng hủy chia sẻ hoặc lỗi, thử dùng cách tải thường
-                    forceDownload(blob, fileName);
-                });
-            } else {
-                // CÁCH 2: Dành cho máy tính (PC) hoặc trình duyệt cũ không hỗ trợ Share
-                forceDownload(blob, fileName);
-            }
-        }, 'image/jpeg', 0.95);
+        // Nhận diện xem có đúng là thiết bị di động không (iPhone, iPad, Android)
+        const isMobile = /Android|webOS|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(navigator.userAgent);
+
+        if (isMobile) {
+            // ĐIỆN THOẠI: Mở Popup để người dùng tự lưu (Chống Zalo/FB/Google App chặn)
+            showDownloadModal(dataUrl);
+        } else {
+            // MÁY TÍNH (MAC / WINDOWS): Tải thẳng file xuống luôn, không hiện menu Share
+            const link = document.createElement('a');
+            link.download = 'nguoiVietNamdethuong_yuth.i.jpg';
+            link.href = dataUrl;
+            
+            // Bắt buộc phải thêm link vào body rồi mới click thì các trình duyệt khó tính mới cho tải
+            document.body.appendChild(link);
+            link.click();
+            document.body.removeChild(link);
+        }
     });
 };
-
 // Hàm ép tải xuống an toàn hơn bằng ObjectURL thay vì Base64
 function forceDownload(blob, fileName) {
     const url = window.URL.createObjectURL(blob);
