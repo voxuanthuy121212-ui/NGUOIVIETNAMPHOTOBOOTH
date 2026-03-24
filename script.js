@@ -1,24 +1,23 @@
-// 1. BẢO VỆ TÁC QUYỀN (Khắc tinh của Google App & Trình duyệt nhúng)
-document.addEventListener('contextmenu', event => event.preventDefault());
+// 1. BẢO VỆ TÁC QUYỀN (Sửa lỗi liệt nút trên điện thoại)
+document.addEventListener('contextmenu', event => {
+    // Chỉ chặn nếu ảnh KHÔNG CÓ chữ 'allow-save'
+    if (!event.target.classList.contains('allow-save')) {
+        event.preventDefault();
+    }
+});
 document.addEventListener('selectstart', event => event.preventDefault());
 document.addEventListener('dragstart', event => {
     if (event.target.tagName.toLowerCase() === 'img') event.preventDefault();
 });
 
-// Biến các ảnh nền tĩnh thành "bóng ma", hoàn toàn vô hình với cảm ứng
 document.addEventListener('DOMContentLoaded', () => {
+    // Chỉ khóa cảm ứng của các lớp nền và khung (không khóa nút bấm)
     const disableTouchImages = document.querySelectorAll('.shelf-bg, .layer-nen, .khung-vien, #main-bg, #running-dog, .captured-img');
     disableTouchImages.forEach(img => {
         img.style.pointerEvents = 'none';
     });
-
-    // Chặn luồng nhấn giữ trên các nút bấm nhưng vẫn cho phép nhấp (click)
-    document.querySelectorAll('.btn-left').forEach(btn => {
-        btn.addEventListener('touchstart', function(e) {
-            e.preventDefault(); // Cắt đuôi menu "Lưu hình ảnh"
-            this.click();       // Chủ động chạy lệnh của nút
-        }, {passive: false});
-    });
+    
+    // Đã gỡ bỏ đoạn mã "hijack" touchstart gây liệt nút Ghép và Tải về tại đây
 });
 
 // 2. Biến số
