@@ -112,7 +112,7 @@ btnCap.onclick = () => {
     }, 1000);
 };
 
-// 4B. TẢI ẢNH TỪ MÁY (Sửa lỗi méo ảnh & tự động cắt theo tỷ lệ chuẩn)
+// 4B. TẢI ẢNH TỪ MÁY (Sửa lỗi tâm ảnh, thu nhỏ không bị bay mất)
 btnUpload.onclick = () => { fileInput.click(); };
 fileInput.onchange = () => {
     if (fileInput.files.length !== 2) { alert("Vui lòng chọn đủ 2 hình nhé!"); return; }
@@ -121,40 +121,41 @@ fileInput.onchange = () => {
         reader.onload = () => {
             target.src = reader.result; 
             
-            // Đợi ảnh load xong để lấy được kích thước thật của ảnh
             target.onload = () => {
                 target.style.display = 'block';
-                
-                // Xóa bỏ lệnh ép bóp méo ảnh (nếu trước đó có bấm nút Chụp)
                 target.style.objectFit = 'unset'; 
                 
-                // Lấy kích thước khung và kích thước thật của ảnh
                 const container = target.parentElement;
                 const cRatio = container.offsetWidth / container.offsetHeight;
                 const iRatio = target.naturalWidth / target.naturalHeight;
 
-                // THUẬT TOÁN: Giữ nguyên tỷ lệ ảnh thật (Không bóp méo)
+                // THUẬT TOÁN MỚI: Tính toán % chính xác để ép tâm ảnh trùng khít với tâm khung
                 if (iRatio > cRatio) {
-                    // Nếu ảnh thiên về chiều ngang -> Cố định chiều cao, thả nổi chiều rộng
+                    // Ảnh nằm ngang (Rộng hơn khung)
+                    let wPct = (iRatio / cRatio) * 100;
+                    target.style.width = wPct + '%';
                     target.style.height = '100%';
-                    target.style.width = 'auto';
+                    target.style.left = ((100 - wPct) / 2) + '%'; // Căn giữa trục Ngang
+                    target.style.top = '0%';
                 } else {
-                    // Nếu ảnh thiên về chiều dọc -> Cố định chiều rộng, thả nổi chiều cao
+                    // Ảnh nằm dọc (Cao hơn khung)
                     target.style.width = '100%';
-                    target.style.height = 'auto';
+                    let hPct = (cRatio / iRatio) * 100;
+                    target.style.height = hPct + '%';
+                    target.style.left = '0%';
+                    target.style.top = ((100 - hPct) / 2) + '%'; // Căn giữa trục Dọc
                 }
 
-                // Căn chuẩn vị trí ban đầu
-                target.style.left = '0%'; 
-                target.style.top = '0%'; 
+                // Khóa tâm thu phóng vào chính giữa ảnh
+                target.style.transformOrigin = 'center center';
                 target.style.transform = 'scale(1)';
                 target.setAttribute('data-scale', '1');
                 
-                target.style.pointerEvents = 'auto'; // Cho phép bạn dùng tay kéo/zoom ảnh
+                target.style.pointerEvents = 'auto'; 
                 target.classList.add('decor-draggable');
-                videoTarget.style.display = 'none'; // Ẩn camera đi
+                videoTarget.style.display = 'none'; 
                 
-                target.onload = null; // Xóa sự kiện để tránh lỗi lặp
+                target.onload = null; 
             };
         };
     };
