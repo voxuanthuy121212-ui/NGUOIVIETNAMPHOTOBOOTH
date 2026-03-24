@@ -131,7 +131,7 @@ video::-webkit-media-controls-start-playback-button {
 .deplao     { width: 26.03%; left: 2.88%;  top: 79.76%; z-index: 8;}
 .bunbo, .bunrieu, .bundau, .caphe, .pho { width: 29%; left: 53%; top: 31%; z-index: 6;}
 .namtom     { width: 11.99%; left: 50.03%; top: 46.29%; z-index: 7;}
-.iubo, .iurieu, .iubundau, .iupho, .iucaphe { width: 30%; left: 69%; top: 65%; z-index: 7;}
+.iubo, .iurieu, .iubundau, .iupho, .iucaphe { width: 30%; left: 69%; top: 65%; z-index: 5;}
 .cotdien    { width: 30.02%; left: 0%; top: 23.01%; z-index: 7; }
 .nguoiviet  { width: 30.54%; left: -0.58%; top: 5.98%; z-index: 5; }
 .ghe        { width: 22.62%; left: 5.71%; top: 77.94%; z-index: 8; }
