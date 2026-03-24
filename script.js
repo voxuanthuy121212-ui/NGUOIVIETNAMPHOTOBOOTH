@@ -228,10 +228,23 @@ function forceDownload(blob, fileName) {
 }
 
 // 6. Sticker & Background
+// 6. Sticker & Background
 function setFood(n, b) { 
+    // Ẩn tất cả các món ăn
     document.querySelectorAll('[id^="food-"]').forEach(e => e.style.display = 'none');
     document.querySelectorAll('.item-l-bunbo, .item-l-bunrieu, .item-l-bundau, .item-l-pho, .item-l-caphe').forEach(e => e.classList.remove('active-item'));
-    const el = document.getElementById(`food-${n}`); if(el) el.style.display = 'block'; b.classList.add('active-item');
+    
+    // Bật món chính lên
+    const el = document.getElementById(`food-${n}`); 
+    if(el) el.style.display = 'block'; 
+    
+    // Thêm điều kiện: Nếu là bún đậu thì hiện thêm mắm tôm
+    if (n === 'bundau') {
+        const mamTom = document.getElementById('food-namtom'); // ID trong HTML của bạn đang là namtom
+        if (mamTom) mamTom.style.display = 'block';
+    }
+    
+    b.classList.add('active-item');
 }
 function setText(n, b) {
     document.querySelectorAll('[id^="text-"]').forEach(e => e.style.display = 'none');
